@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏎 Cars Klicker - Игра</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .balance-card .card-title {
+            color: white;
+        }
+
+        .balance-info {
+            font-size: 1.8em;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #45a049;
+        }
+
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #e68900;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #da190b;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .action-panel {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .action-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .car-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .car-info {
+            flex: 1;
+        }
+
+        .car-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .car-stats {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 2000;
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.success {
+            border-left: 4px solid #4caf50;
+        }
+
+        .notification.error {
+            border-left: 4px solid #f44336;
+        }
+
+        .notification.warning {
+            border-left: 4px solid #ff9800;
+        }
+
+        .event-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .event-card .card-title {
+            color: white;
+        }
+
+        .top-players {
+            list-style: none;
+        }
+
+        .top-players li {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-players li:last-child {
+            border-bottom: none;
+        }
+
+        .medal {
+            font-size: 1.3em;
+            margin-right: 10px;
+        }
+
+        .player-name {
+            flex: 1;
+            font-weight: bold;
+        }
+
+        .player-coins {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .shop-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .input-group {
+            margin: 15px 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏎 Cars Klicker Game</h1>
+            <p>Собирай машины, выигрывай гонки, зарабатывай деньги! 💰</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Баланс -->
+            <div class="card balance-card">
+                <div class="card-title">💰 Баланс</div>
+                <div class="balance-info" id="coins">50,000 💰</div>
+                <div class="balance-info" style="color: #ffd700; font-size: 1.4em;" id="carscoins">100 💎</div>
+                <div class="stats-grid">
+                    <div class="stat">
+                        <div class="stat-label">Уровень</div>
+                        <div class="stat-value" id="level">1</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Побед</div>
+                        <div class="stat-value" id="wins">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Поражений</div>
+                        <div class="stat-value" id="losses">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Машин</div>
+                        <div class="stat-value" id="garageCount">0/20</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Текущее событие -->
+            <div class="card event-card">
+                <div class="card-title">🎉 Текущее событие</div>
+                <div id="eventName" style="font-size: 1.2em; margin-bottom: 10px;">💰 ДЕНЬ УДАЧИ</div>
+                <div id="eventDescription" style="opacity: 0.95;">Двойные награды за работу и гонки!</div>
+                <div style="margin-top: 15px; font-size: 0.9em; opacity: 0.8;">⏱ Событие меняется каждый час</div>
+            </div>
+        </div>
+
+        <!-- Панель действий -->
+        <div class="action-panel">
+            <button class="card btn-primary" onclick="work()" style="padding: 20px; font-size: 1.2em; min-height: 60px;">
+                💼 Работа
+            </button>
+            <button class="card btn-success" onclick="showShop()" style="padding: 20px; font-size: 1.2em; min-height: 60px;">
+                🏪 Магазин
+            </button>
+            <button class="card btn-warning" onclick="showRace()" style="padding: 20px; font-size: 1.2em; min-height: 60px;">
+                ⚔ Гонка
+            </button>
+            <button class="card btn-secondary" onclick="showGarage()" style="padding: 20px; font-size: 1.2em; min-height: 60px;">
+                🏎 Гараж
+            </button>
+            <button class="card btn-primary" onclick="showDice()" style="padding: 20px; font-size: 1.2em; min-height: 60px;">
+                🎲 Кости
+            </button>
+            <button class="card btn-warning" onclick="showCases()" style="padding: 20px; font-size: 1.2em; min-height: 60px;">
+                💎 Кейсы
+            </button>
+            <button class="card btn-secondary" onclick="showTop()" style="padding: 20px; font-size: 1.2em; min-height: 60px;">
+                🏆 Топ
+            </button>
+            <button class="card btn-success" onclick="dailyBonus()" style="padding: 20px; font-size: 1.2em; min-height: 60px;">
+                🎁 Бонус
+            </button>
+        </div>
+
+        <!-- Топ игроков -->
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-title">🏆 ТОП-10 ИГРОКОВ</div>
+            <ul class="top-players" id="topPlayers">
+                <li><span class="medal">🥇</span> <span class="player-name">Игрок 1</span> <span class="player-coins">1,000,000 💰</span></li>
+                <li><span class="medal">🥈</span> <span class="player-name">Игрок 2</span> <span class="player-coins">500,000 💰</span></li>
+                <li><span class="medal">🥉</span> <span class="player-name">Игрок 3</span> <span class="player-coins">250,000 💰</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Модальное окно Магазина -->
+    <div id="shopModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">🏪 МАГАЗИН</div>
+            <div class="modal-body shop-list" id="shopItems"></div>
+            <button class="btn-secondary" onclick="closeModal('shopModal')" style="width: 100%; margin-top: 10px;">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно Гаража -->
+    <div id="garageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">🏎 ГАРАЖ</div>
+            <div class="modal-body" id="garageItems"></div>
+            <button class="btn-secondary" onclick="closeModal('garageModal')" style="width: 100%; margin-top: 10px;">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно Гонки -->
+    <div id="raceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">⚔ ГОНКА</div>
+            <div class="modal-body" id="raceContent"></div>
+            <button class="btn-secondary" onclick="closeModal('raceModal')" style="width: 100%; margin-top: 10px;">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно Кейсов -->
+    <div id="casesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">💎 КЕЙСЫ</div>
+            <div class="modal-body" id="casesContent"></div>
+            <button class="btn-secondary" onclick="closeModal('casesModal')" style="width: 100%; margin-top: 10px;">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно Топа -->
+    <div id="topModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">🏆 ТОП ИГРОКОВ</div>
+            <div class="modal-body" id="topContent"></div>
+            <button class="btn-secondary" onclick="closeModal('topModal')" style="width: 100%; margin-top: 10px;">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно Костей -->
+    <div id="diceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">🎲 КОСТИ</div>
+            <div class="modal-body" id="diceContent"></div>
+            <button class="btn-secondary" onclick="closeModal('diceModal')" style="width: 100%; margin-top: 10px;">Закрыть</button>
+        </div>
+    </div>
+
+    <script>
+        // Данные игрока
+        const player = {
+            name: 'Игрок',
+            coins: 50000,
+            carscoins: 100,
+            garage: [],
+            level: 1,
+            wins: 0,
+            losses: 0,
+            lucky_dice_uses: 0,
+            daily_bonus: 0,
+            last_daily: 0
+        };
+
+        // Константы
+        const WORK_REWARD_MIN = 2400;
+        const WORK_REWARD_MAX = 3600;
+        const GAME_BET = 100;
+        const MAX_CARS_IN_GARAGE = 20;
+        const CARSCOINS_FOR_WORK = 10;
+        const CARSCOINS_FOR_RACE_WIN = 25;
+        const CARSCOINS_FOR_RACE_LOSS = 5;
+        const CARSCOINS_FOR_DICE_WIN = 15;
+
+        // Список машин
+        const CARS_LIST = [
+            {brand: "Toyota", model: "Yaris GR", speed: 110, price: 5000},
+            {brand: "Toyota", model: "Corolla", speed: 130, price: 8000},
+            {brand: "BMW", model: "M3 E92", speed: 250, price: 80000},
+            {brand: "Mercedes", model: "AMG GT", speed: 280, price: 120000},
+            {brand: "Ferrari", model: "F8 Tributo", speed: 310, price: 200000},
+            {brand: "Lamborghini", model: "Huracan", speed: 320, price: 180000},
+            {brand: "Porsche", model: "911 Turbo", speed: 320, price: 200000},
+            {brand: "Tesla", model: "Roadster", speed: 340, price: 250000},
+            {brand: "Bugatti", model: "Chiron", speed: 380, price: 1000000},
+            {brand: "McLaren", model: "F1", speed: 360, price: 400000},
+        ];
+
+        const EVENTS = [
+            {name: "🎉 ЧЁРНАЯ ПЯТНИЦА", description: "Все машины скидка 30%", discount: 0.30},
+            {name: "🚀 КИБЕРПОНЕДЕЛЬНИК", description: "Кейсы дешевле на 25%", discount: 0.25},
+            {name: "💰 ДЕНЬ УДАЧИ", description: "Двойные награды за работу и гонки!", discount: 0.0},
+            {name: "🏎 ГОНОЧНЫЙ ФЕСТИВАЛЬ", description: "Выигрыш в гонке дает 3x награду", discount: 0.0},
+            {name: "⚡ ЭЛЕКТРИЧЕСКИЙ ДЕНЬ", description: "Tesla стоят на 50% дешевле", discount: 0.50},
+        ];
+
+        let currentEvent = EVENTS[2];
+
+        // Функции
+        function formatNumber(n) {
+            return n.toLocaleString('ru-RU');
+        }
+
+        function updateUI() {
+            document.getElementById('coins').textContent = formatNumber(player.coins) + ' 💰';
+            document.getElementById('carscoins').textContent = formatNumber(player.carscoins) + ' 💎';
+            document.getElementById('level').textContent = player.level;
+            document.getElementById('wins').textContent = player.wins;
+            document.getElementById('losses').textContent = player.losses;
+            document.getElementById('garageCount').textContent = player.garage.length + '/' + MAX_CARS_IN_GARAGE;
+        }
+
+        function showNotification(message, type = 'success') {
+            const notif = document.createElement('div');
+            notif.className = `notification ${type}`;
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 3000);
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('show');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        function work() {
+            let reward = Math.floor(Math.random() * (WORK_REWARD_MAX - WORK_REWARD_MIN + 1)) + WORK_REWARD_MIN;
+            let carsCoinReward = CARSCOINS_FOR_WORK;
+
+            // Проверка на событие День Удачи
+            if (currentEvent.name === "💰 ДЕНЬ УДАЧИ") {
+                reward *= 2;
+            }
+
+            player.coins += reward;
+            player.carscoins += carsCoinReward;
+            updateUI();
+            showNotification(`💼 +${formatNumber(reward)} 💰 +${carsCoinReward} 💎`, 'success');
+        }
+
+        function showShop() {
+            const shopItems = document.getElementById('shopItems');
+            shopItems.innerHTML = '';
+            
+            for (let i = 0; i < 5; i++) {
+                const car = CARS_LIST[Math.floor(Math.random() * CARS_LIST.length)];
+                let price = car.price;
+                
+                if (currentEvent.discount > 0) {
+                    price = Math.floor(price * (1 - currentEvent.discount));
+                }
+                
+                const item = document.createElement('div');
+                item.className = 'car-item';
+                item.innerHTML = `
+                    <div class="car-info">
+                        <div class="car-name">${car.brand} ${car.model}</div>
+                        <div class="car-stats">⚡ ${car.speed} км/ч | 💰 ${formatNumber(price)}</div>
+                    </div>
+                    <button class="btn-success" onclick="buyCar(${price}, '${car.brand}', '${car.model}', ${car.speed})">Купить</button>
+                `;
+                shopItems.appendChild(item);
+            }
+            
+            openModal('shopModal');
+        }
+
+        function buyCar(price, brand, model, speed) {
+            if (player.coins < price) {
+                showNotification('❌ Недостаточно денег!', 'error');
+                return;
+            }
+
+            if (player.garage.length >= MAX_CARS_IN_GARAGE) {
+                showNotification('❌ Гараж полон!', 'error');
+                return;
+            }
+
+            player.coins -= price;
+            player.garage.push({brand, model, speed, price});
+            updateUI();
+            showNotification(`✅ Куплено ${brand} ${model}!`, 'success');
+        }
+
+        function showGarage() {
+            const garageItems = document.getElementById('garageItems');
+            
+            if (player.garage.length === 0) {
+                garageItems.innerHTML = '<p>🏎 Гараж пуст. Посети магазин!</p>';
+            } else {
+                garageItems.innerHTML = '';
+                player.garage.forEach((car, idx) => {
+                    const item = document.createElement('div');
+                    item.className = 'car-item';
+                    item.innerHTML = `
+                        <div class="car-info">
+                            <div class="car-name">${idx + 1}. ${car.brand} ${car.model}</div>
+                            <div class="car-stats">⚡ ${car.speed} км/ч | 💰 ${formatNumber(car.price)}</div>
+                        </div>
+                    `;
+                    garageItems.appendChild(item);
+                });
+            }
+            
+            openModal('garageModal');
+        }
+
+        function showRace() {
+            if (player.garage.length === 0) {
+                showNotification('❌ Нет машин для гонки!', 'error');
+                return;
+            }
+
+            const myCarIdx = Math.floor(Math.random() * player.garage.length);
+            const myCar = player.garage[myCarIdx];
+            const opponent = CARS_LIST[Math.floor(Math.random() * CARS_LIST.length)];
+
+            let playerSpeed = myCar.speed + (Math.random() * 40 - 20);
+            let opponentSpeed = Math.random() * 250 + 100;
+
+            const content = document.getElementById('raceContent');
+            
+            if (playerSpeed > opponentSpeed) {
+                let reward = Math.floor(Math.random() * 300) + 200;
+                
+                if (currentEvent.name === "🏎 ГОНОЧНЫЙ ФЕСТИВАЛЬ") {
+                    reward *= 3;
+                } else if (currentEvent.name === "💰 ДЕНЬ УДАЧИ") {
+                    reward *= 2;
+                }
+
+                player.coins += reward;
+                player.carscoins += CARSCOINS_FOR_RACE_WIN;
+                player.wins++;
+
+                content.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 2em; margin-bottom: 15px;">🏆 ПОБЕДА!</div>
+                        <div class="car-item" style="margin-bottom: 15px;">
+                            <div><strong>Твоя машина:</strong><br>${myCar.brand} ${myCar.model}</div>
+                            <div><strong>Скорость:</strong><br>${Math.floor(playerSpeed)} км/ч</div>
+                        </div>
+                        <div class="car-item" style="margin-bottom: 15px;">
+                            <div><strong>Машина противника:</strong><br>${opponent.brand}</div>
+                            <div><strong>Скорость:</strong><br>${Math.floor(opponentSpeed)} км/ч</div>
+                        </div>
+                        <div style="background: #4caf50; color: white; padding: 15px; border-radius: 8px;">
+                            <strong>+${formatNumber(reward)} 💰</strong><br>
+                            <strong>+${CARSCOINS_FOR_RACE_WIN} 💎</strong>
+                        </div>
+                    </div>
+                `;
+                showNotification('🏆 Вы выиграли гонку!', 'success');
+            } else {
+                let loss = Math.floor(Math.random() * 200) + 100;
+                player.coins = Math.max(0, player.coins - loss);
+                player.carscoins += CARSCOINS_FOR_RACE_LOSS;
+                player.losses++;
+
+                content.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 2em; margin-bottom: 15px;">💥 ПОРАЖЕНИЕ!</div>
+                        <div class="car-item" style="margin-bottom: 15px;">
+                            <div><strong>Твоя машина:</strong><br>${myCar.brand} ${myCar.model}</div>
+                            <div><strong>Скорость:</strong><br>${Math.floor(playerSpeed)} км/ч</div>
+                        </div>
+                        <div class="car-item" style="margin-bottom: 15px;">
+                            <div><strong>Машина противника:</strong><br>${opponent.brand}</div>
+                            <div><strong>Скорость:</strong><br>${Math.floor(opponentSpeed)} км/ч</div>
+                        </div>
+                        <div style="background: #f44336; color: white; padding: 15px; border-radius: 8px;">
+                            <strong>-${formatNumber(loss)} 💰</strong><br>
+                            <strong>+${CARSCOINS_FOR_RACE_LOSS} 💎</strong>
+                        </div>
+                    </div>
+                `;
+                showNotification('💥 Вы проиграли гонку!', 'error');
+            }
+
+            updateUI();
+            openModal('raceModal');
+        }
+
+        function showDice() {
+            if (player.coins < GAME_BET) {
+                showNotification('❌ Недостаточно денег!', 'error');
+                return;
+            }
+
+            const roll = Math.floor(Math.random() * 6) + 1;
+            const isWin = roll >= 4;
+            const content = document.getElementById('diceContent');
+
+            if (isWin) {
+                const reward = GAME_BET * 2;
+                player.coins += reward;
+                player.carscoins += CARSCOINS_FOR_DICE_WIN;
+
+                content.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 3em; margin: 20px 0;">🎲 ${roll}</div>
+                        <div style="background: #4caf50; color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <strong>✅ ВЫ ВЫИГРАЛИ!</strong><br>
+                            +${formatNumber(reward)} 💰<br>
+                            +${CARSCOINS_FOR_DICE_WIN} 💎
+                        </div>
+                    </div>
+                `;
+                showNotification('✅ Вы выиграли в кости!', 'success');
+            } else {
+                player.coins -= GAME_BET;
+
+                content.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 3em; margin: 20px 0;">🎲 ${roll}</div>
+                        <div style="background: #f44336; color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <strong>❌ ВЫ ПРОИГРАЛИ!</strong><br>
+                            -${GAME_BET} 💰
+                        </div>
+                    </div>
+                `;
+                showNotification('❌ Вы проиграли в кости!', 'error');
+            }
+
+            updateUI();
+            openModal('diceModal');
+        }
+
+        function showCases() {
+            const content = document.getElementById('casesContent');
+            content.innerHTML = `
+                <p><strong>Обычный кейс:</strong> 50 CarsCoin</p>
+                <button class="btn-primary" onclick="openCase('common')" style="width: 100%; margin: 10px 0;">Открыть обычный кейс</button>
+                
+                <p style="margin-top: 15px;"><strong>Редкий кейс:</strong> 100 CarsCoin</p>
+                <button class="btn-primary" onclick="openCase('rare')" style="width: 100%; margin: 10px 0;">Открыть редкий кейс</button>
+                
+                <p style="margin-top: 15px;"><strong>Эпический кейс:</strong> 200 CarsCoin</p>
+                <button class="btn-primary" onclick="openCase('epic')" style="width: 100%; margin: 10px 0;">Открыть эпический кейс</button>
+                
+                <p style="margin-top: 15px;"><strong>Легендарный кейс:</strong> 500 CarsCoin</p>
+                <button class="btn-primary" onclick="openCase('legendary')" style="width: 100%; margin: 10px 0;">Открыть легендарный кейс</button>
+            `;
+            openModal('casesModal');
+        }
+
+        function openCase(type) {
+            const prices = {common: 50, rare: 100, epic: 200, legendary: 500};
+            const price = prices[type];
+
+            if (player.carscoins < price) {
+                showNotification('❌ Недостаточно CarsCoin!', 'error');
+                return;
+            }
+
+            if (player.garage.length >= MAX_CARS_IN_GARAGE) {
+                showNotification('❌ Гараж полон!', 'error');
+                return;
+            }
+
+            let car = CARS_LIST[Math.floor(Math.random() * CARS_LIST.length)];
+            let carscoins = Math.floor(Math.random() * 40) + 10;
+
+            player.carscoins -= price;
+            player.carscoins += carscoins;
+            player.garage.push(car);
+            updateUI();
+
+            showNotification(`💎 Вы получили ${car.brand} ${car.model}!`, 'success');
+            closeModal('casesModal');
+        }
+
+        function showTop() {
+            const content = document.getElementById('topContent');
+            const topList = [
+                {name: 'Игрок 1', coins: 1000000},
+                {name: 'Игрок 2', coins: 500000},
+                {name: 'Игрок 3', coins: 250000},
+                {name: 'Вы', coins: player.coins},
+            ].sort((a, b) => b.coins - a.coins);
+
+            content.innerHTML = '<ul class="top-players" style="margin: 0;">';
+            topList.forEach((p, idx) => {
+                const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : (idx + 1) + '.';
+                content.innerHTML += `
+                    <li>
+                        <span class="medal">${medal}</span>
+                        <span class="player-name">${p.name}</span>
+                        <span class="player-coins">${formatNumber(p.coins)} 💰</span>
+                    </li>
+                `;
+            });
+            content.innerHTML += '</ul>';
+
+            openModal('topModal');
+        }
+
+        function dailyBonus() {
+            const now = Math.floor(Date.now() / 1000);
+            const timeSinceLastBonus = now - player.last_daily;
+
+            if (timeSinceLastBonus < 86400) {
+                const remaining = 86400 - timeSinceLastBonus;
+                const hours = Math.floor(remaining / 3600);
+                const minutes = Math.floor((remaining % 3600) / 60);
+                showNotification(`⏳ Бонус доступен через ${hours}ч ${minutes}м`, 'warning');
+                return;
+            }
+
+            const bonus = Math.floor(Math.random() * 10000) + 5000;
+            player.coins += bonus;
+            player.carscoins += 50;
+            player.daily_bonus++;
+            player.last_daily = now;
+
+            updateUI();
+            showNotification(`🎁 +${formatNumber(bonus)} 💰 +50 💎!`, 'success');
+        }
+
+        // Инициализация
+        updateUI();
+        
+        // Смена события каждый час
+        setInterval(() => {
+            currentEvent = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+            document.getElementById('eventName').textContent = currentEvent.name;
+            document.getElementById('eventDescription').textContent = currentEvent.description;
+        }, 3600000);
+
+        // Загрузка данных из localStorage
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem('carsGamePlayer');
+            if (saved) {
+                Object.assign(player, JSON.parse(saved));
+                updateUI();
+            }
+        });
+
+        // Сохранение данных в localStorage
+        setInterval(() => {
+            localStorage.setItem('carsGamePlayer', JSON.stringify(player));
+        }, 5000);
+
+        // Закрытие модальных окон при клике на фон
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>
